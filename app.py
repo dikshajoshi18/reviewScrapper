@@ -5,13 +5,15 @@ from flask import Flask, render_template, request,jsonify
 import requests
 from bs4 import BeautifulSoup as bs
 from urllib.request import urlopen as uReq
-import pymongo
 
 app = Flask(__name__)  # initialising the flask app with the name 'app'
 
+@app.route('/', methods=['GET'])
+def homepage():
+    return render_template('index.html')
 
-
-
+# base url + /
+#http://localhost:8000 + /
 @app.route('/scrap',methods=['POST']) # route with allowed methods as POST and GET
 def index():
     if request.method == 'POST':
@@ -30,7 +32,7 @@ def index():
             prod_html = bs(prodRes.text, "html.parser") # parsing the product page as HTML
             commentboxes = prod_html.find_all('div', {'class': "_3nrCtb"}) # finding the HTML section containing the customer comments
 
-            #table = db[searchString] # creating a collection with the same name as search string. Tables and Collections are analogous.
+            # table = db[searchString] # creating a collection with the same name as search string. Tables and Collections are analogous.
             #filename = searchString+".csv" #  filename to save the details
             #fw = open(filename, "w") # creating a local file to save the details
             #headers = "Product, Customer Name, Rating, Heading, Comment \n" # providing the heading of the columns
@@ -62,15 +64,12 @@ def index():
                 #fw.write(searchString+","+name.replace(",", ":")+","+rating + "," + commentHead.replace(",", ":") + "," + custComment.replace(",", ":") + "\n")
                 mydict = {"Product": searchString, "Name": name, "Rating": rating, "CommentHead": commentHead,
                           "Comment": custComment} # saving that detail to a dictionary
-                #x = table.insert_one(mydict) #insertig the dictionary containing the rview comments to the collection
+                # x = table.insert_one(mydict) #insertig the dictionary containing the rview comments to the collection
                 reviews.append(mydict) #  appending the comments to the review list
             return render_template('results.html', reviews=reviews) # showing the review to the user
-
-
         except:
             return 'something is wrong'
-            #return render_template('results.html')
-    else:
-        return render_template('index.html')
+
+
 if __name__ == "__main__":
     app.run(port=8000,debug=True) # running the app on the local machine on port 8000
